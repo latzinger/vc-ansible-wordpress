@@ -1,8 +1,12 @@
 # ansible-vcenter
 
-Playbook for deploying a ova template over VMware vCenter (vSphere), installing Nginx, MySQL and Wordpress.
-Default Image: bionic-server-cloudimg-amd64
-The Image will be downloaded by ansible playbook. The VM Harddisk will also be resized.
+This is an Ansible Project for deploying a Ubuntu Bionic Server OVA-Template on the VMware vCenter.
+Afterwards installing a running Wordpress using Nginx and a MySQL Database.
+
+* Deploying Ubuntu Bionic Server on vCenter
+* Installing Nginx
+* Installing MySQL Database
+* Installing Wordpress
 
 ## Required Variables
 
