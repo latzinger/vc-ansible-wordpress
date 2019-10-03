@@ -1,0 +1,7 @@
+localhost ansible_connection=local ansible_python_interpreter=~/Applications/ansible/bin/python
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=ubuntu
+ansible_private_key_file=~/.ssh/id_rsa
+host_key_checking=False

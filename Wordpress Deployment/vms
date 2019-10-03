@@ -1,0 +1,1 @@
+ansible-wordpress ansible_host=192.168.192.252 ansible_connection=ssh ansible_user=ubuntu ansible_private_key_file=~/.ssh/id_rsa host_key_checking=False

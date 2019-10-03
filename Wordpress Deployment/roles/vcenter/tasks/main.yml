@@ -1,0 +1,62 @@
+- name: Check OVA exists
+  stat:
+    path: '{{ ova_path }}'
+  register: ova_exists_result
+
+- name: Download OVA File
+  get_url:
+    url: '{{ ova_url }}'
+    dest: '{{ ova_path }}'
+    checksum: sha256:f75fd1dc703c3f093e0444a58f34be19a4ead833bed246908e0a6db33dd6e628
+  when: ova_exists_result == False
+
+- name: make user-data
+  copy:
+    content: |
+      #cloud-config
+      chpasswd: { expire: False }
+      runcmd:
+        - echo "ubuntu    ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    dest: "./user-data"
+  tags: ["cloudinit"]
+
+- name: Deploy VM from OVA Template
+  vmware_deploy_ovf:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter: '{{ vcenter_datacenter }}'
+    cluster: '{{ vcenter_cluster }}'
+    datastore: '{{ vcenter_datastore }}'
+    folder: '{{ vcenter_folder }}'
+    name: '{{ vm_name }}'
+    networks: "{u'VM Network':u'{{ vcenter_network }}'}"
+    validate_certs: no
+    power_on: on
+    wait_for_ip_address: yes
+    ovf: '{{ ova_path }}'
+    properties:
+      password: '{{ vm_password }}'
+      hostname: '{{ vm_hostname }}'
+      public-keys: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      user-data: "{{ lookup('file', './user-data') | b64encode }}"
+  register: vm_facts
+       
+- name: Print Configuration
+  debug:
+    var: vm_facts
+
+- name: Set IP-Address
+  set_fact:
+    vm_ip: "{{ vm_facts.instance.hw_eth0.ipaddresses[0] }}"
+
+- name: Create new inventory file
+  copy:
+    content: "{{ vm_hostname }} ansible_host={{ vm_ip }} ansible_connection=ssh ansible_user=ubuntu ansible_private_key_file=~/.ssh/id_rsa host_key_checking=False"
+    dest: "./vms"
+
+- name: Add VM to inventory
+  add_host:
+    name: '{{ vm_ip }}'
+    groups: vms
+

@@ -1,0 +1,25 @@
+---
+- name: Install required MySQL packages
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - python-mysqldb
+    - python3-pymysql
+    - mysql-server
+  become: yes
+
+- name: Create a new database
+  mysql_db:
+    name: "{{ wp_mysql_db }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    target: /var/lib/mysqldata/{{ wp_mysql_db }}.sql
+
+- name: Create database user with all database privileges
+  mysql_user:
+    name: "{{ wp_mysql_user }}"
+    password: "{{ wp_mysql_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    priv: '*.*:ALL'
+    state: present

@@ -1,0 +1,72 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_prompt:
+    - name: "vm_name"
+      prompt: "Enter VM Name"
+      private: no
+      default: "Ubuntu 10.04 (via ansible)"
+    - name: "vm_password"
+      prompt: "Enter VM Password"
+      private: no
+      default: "Pa$$w0rd"
+    - name: "vm_hostname"
+      prompt: "Enter VM Hostname"
+      private: no
+      default: "ubuntu1804-ansible"
+  roles:
+    - vcenter
+
+- hosts: vms
+  gather_facts: False
+  become: yes
+  become_method: sudo
+  vars_prompt:
+    - name: "nginx_servername"
+      prompt: "Enter Servename"
+      private: no
+      default: "ansible-test"
+  roles:
+   - nginx
+   - mysql
+   - wordpress
+  pre_tasks:
+    - name: Create a new primary partition
+      parted:
+        device: /dev/sdb
+        number: 1
+        state: present
+        part_start: 0%
+        part_end: 100%
+      register: disk_info
+
+    - name: Print Disk Information
+      debug:
+        var: disk_info
+    
+    - name: Create a ext4 filesystem on /dev/sdb1
+      filesystem:
+        fstype: ext4
+        dev: /dev/sdb1
+    
+    - name: ansible create directory
+      file:
+       path: /var/lib/mysqldata
+       state: directory
+    
+    - name: Mount /dev/sdb1
+      mount:
+        fstype: ext4
+        src: /dev/sdb1
+        path: /var/lib/mysqldata
+        state: mounted
+    
+    - name: Update apt cache
+      apt:
+        name: "*"
+        force_apt_get: yes
+        update_cache: yes
+        cache_valid_time: 3600
+        state: "latest"
+      become: yes

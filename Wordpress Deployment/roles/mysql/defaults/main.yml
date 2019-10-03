@@ -1,0 +1,3 @@
+wp_mysql_db: wordpress
+wp_mysql_user: wordpress
+wp_mysql_password: Pa$$w0rd

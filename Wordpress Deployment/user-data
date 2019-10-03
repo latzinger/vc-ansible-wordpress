@@ -1,0 +1,4 @@
+#cloud-config
+chpasswd: { expire: False }
+runcmd:
+  - echo "ubuntu    ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers

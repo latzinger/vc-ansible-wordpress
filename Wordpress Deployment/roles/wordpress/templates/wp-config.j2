@@ -1,0 +1,18 @@
+<?php
+
+define('DB_NAME', '{{ wp_mysql_db }}');
+define('DB_USER', '{{ wp_mysql_user }}');
+define('DB_PASSWORD', '{{ wp_mysql_password }}');
+define( 'DB_HOST', 'localhost:/var/run/mysqld/mysqld.sock' );
+define('DB_CHARSET', 'utf8');
+define('DB_COLLATE', '');
+
+$table_prefix = 'wp_';
+
+define( 'WP_DEBUG', true );
+
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', dirname( __FILE__ ) . '/' );
+}
+
+require_once( ABSPATH . 'wp-settings.php' );

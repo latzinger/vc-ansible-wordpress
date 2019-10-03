@@ -1,0 +1,44 @@
+---
+- name: Install required Nginx packages
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - nginx
+    - php-fpm
+    - php7.2-fpm
+    - php-mysql
+    - php-common
+    - php-mbstring
+    - php7.2-xmlrpc 
+    - php-soap
+    - php-gd 
+    - php-xml
+    - php-intl
+    - php-cli
+    - php-ldap
+    - php-zip
+    - php-curl
+  become: yes
+
+- name: Moving Nginx configuration file
+  template:
+    src: wordpress.j2
+    dest: /etc/nginx/sites-available/wordpress
+
+- name: Enable Wordpress Site
+  file:
+    src: /etc/nginx/sites-available/wordpress
+    dest: /etc/nginx/sites-enabled/wordpress
+    state: link
+  become: yes
+
+- name: Disable default site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  become: yes
+
+- name: Add ufw rule
+  command: ufw allow 80,443/tcp
+  become: yes
